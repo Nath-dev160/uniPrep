@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand surface + text */
+    --background: #f4f0e9; /* Warm Ivory */
+    --foreground: #241f1c; /* Charcoal */
+
+    --card: #fffdf8; /* Soft Cream */
+    --card-foreground: #241f1c;
+
+    /* Action colours */
+    --primary: #a86f4f; /* Terracotta */
+    --primary-foreground: #fffdf8;
+
+    --secondary: #7a4b33; /* Warm Brown */
+    --secondary-foreground: #fffdf8;
+
+    --muted: #ddd4c9; /* Sand */
+    --muted-foreground: #756d66; /* Warm Gray */
+
+    --accent: #4f9a9a; /* Muted Teal — used sparingly */
+    --accent-foreground: #fffdf8;
+
+    /* Semantic states */
+    --destructive: #b3452c;
+    --destructive-foreground: #fffdf8;
+
+    --success: #4b7b52;
+    --success-foreground: #fffdf8;
+
+    --warning: #c08a2e;
+    --warning-foreground: #241f1c;
+
+    --border: #ddd4c9;
+    --input: #ddd4c9;
+    --ring: #a86f4f;
+
+    --radius: 0.6rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  ::selection {
+    background-color: #a86f4f;
+    color: #fffdf8;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
