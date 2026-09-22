@@ -2,12 +2,14 @@ import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { MobileNav } from "@/components/layout/mobile-nav";
 
 const NAV_LINKS = [
   { href: "/courses", label: "Courses" },
   { href: "/practice", label: "Practice" },
   { href: "/exams", label: "Exams" },
-];
+  { href: "/performance", label: "Performance" },
+] as const;
 
 export function SiteHeader() {
   return (
@@ -21,7 +23,7 @@ export function SiteHeader() {
           UniPrep
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -33,7 +35,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 md:flex">
           <Button asChild variant="ghost" size="sm">
             <Link href="/login">Login</Link>
           </Button>
@@ -41,6 +43,8 @@ export function SiteHeader() {
             <Link href="/signup">Sign Up</Link>
           </Button>
         </div>
+
+        <MobileNav />
       </div>
     </header>
   );
