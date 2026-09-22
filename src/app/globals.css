@@ -67,4 +67,31 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Fine paper-like grain, used once as a texture layer — never as a
+     substitute for real hierarchy. */
+  .bg-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+}
+
+/* A single, orchestrated entrance for the hero copy block on first paint.
+   Respects reduced-motion: with no preference set, elements start from
+   this state and animate in; otherwise they render directly in their
+   final position (see the .motion-safe-only rule below). */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
 }
