@@ -7,8 +7,7 @@ export default function AdminPage() {
     <PlaceholderPage
       icon={ShieldHalf}
       title="Admin"
-      description="Manage the academic hierarchy, question bank, tests, and question reports."
-      comingSoon="The admin dashboard isn't built yet"
+      description="Manage the academic hierarchy, question bank, tests, and question reports. The admin dashboard isn't built yet."
     />
   );
 }
