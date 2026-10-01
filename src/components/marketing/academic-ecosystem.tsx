@@ -25,7 +25,7 @@ export function AcademicEcosystem() {
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
             Every question in UniPrep is tied to your university, faculty,
             department, course, and topic — so what you practice always
-            matches what you're actually studying.
+            matches what you&apos;re actually studying.
           </p>
         </div>
 

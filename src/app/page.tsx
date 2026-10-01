@@ -9,9 +9,9 @@ import { FinalCta } from "@/components/marketing/final-cta";
 
 export default function HomePage() {
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main>
+      <main className="flex-1">
         <Hero />
         <CoreFeatures />
         <QuestionTypes />
@@ -20,6 +20,6 @@ export default function HomePage() {
         <FinalCta />
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
 }

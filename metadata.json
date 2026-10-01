@@ -1,0 +1,6 @@
+{
+  "name": "UniPrep",
+  "description": "Practice university courses, simulate real examinations, and track performance.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

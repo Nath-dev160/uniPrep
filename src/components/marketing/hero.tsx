@@ -3,16 +3,18 @@ import Link from "next/link";
 import { ArrowRight, Compass } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import heroExamImage from "../../../Public/images/hero-exam.jpg";
 
 export function Hero() {
   return (
     <section className="relative isolate overflow-hidden bg-espresso">
       <Image
-        src="/images/hero-exam.jpg"
+        src={heroExamImage}
         alt="A student reviewing a graded exam paper marked A+ in a university classroom"
         fill
         priority
         sizes="100vw"
+        referrerPolicy="no-referrer"
         className="object-cover object-[50%_28%]"
       />
 

@@ -45,14 +45,14 @@ const DEMO_COURSE_PROGRESS = [
 
 export default function DashboardPage() {
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="container py-12">
+      <main className="container flex-1 py-12">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Welcome back</p>
             <h1 className="font-serif text-3xl font-medium text-foreground">
-              Let's get you ready.
+              Let&apos;s get you ready.
             </h1>
           </div>
           <Badge variant="muted">Demo preview — no data connected yet</Badge>
@@ -185,6 +185,6 @@ export default function DashboardPage() {
         </div>
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
 }

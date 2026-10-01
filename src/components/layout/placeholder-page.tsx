@@ -36,9 +36,9 @@ export function PlaceholderPage({
   secondaryCta = { label: "Back to home", href: "/" },
 }: PlaceholderPageProps) {
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="container py-16 sm:py-20">
+      <main className="container flex-1 py-16 sm:py-20">
         <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
           <Link href="/" className="transition-colors hover:text-foreground">
             Home
@@ -78,6 +78,6 @@ export function PlaceholderPage({
         </div>
       </main>
       <SiteFooter />
-    </>
+    </div>
   );
 }
