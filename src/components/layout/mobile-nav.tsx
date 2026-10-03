@@ -6,6 +6,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { GraduationCap, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { signOutAction } from "@/features/auth/actions";
 
 const NAV_LINKS = [
   { href: "/courses", label: "Courses" },
@@ -14,7 +15,11 @@ const NAV_LINKS = [
   { href: "/performance", label: "Performance" },
 ] as const;
 
-export function MobileNav() {
+export function MobileNav({
+  isAuthenticated = false,
+}: {
+  isAuthenticated?: boolean;
+}) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -68,12 +73,39 @@ export function MobileNav() {
           </nav>
 
           <div className="mt-auto flex flex-col gap-3 border-t border-border px-4 py-6">
-            <Button asChild variant="outline" onClick={() => setOpen(false)}>
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild onClick={() => setOpen(false)}>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  <Link href="/profile">Profile</Link>
+                </Button>
+                <form action={signOutAction}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    onClick={() => setOpen(false)}
+                  >
+                    Log out
+                  </Button>
+                </form>
+              </>
+            ) : (
+              <>
+                <Button
+                  asChild
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild onClick={() => setOpen(false)}>
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
