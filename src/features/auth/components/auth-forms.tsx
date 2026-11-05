@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { isRedirectError } from "next/dist/client/components/redirect";
 import {
   AlertCircle,
   CheckCircle2,
@@ -22,8 +23,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  demoLoginAction,
   forgotPasswordAction,
   loginAction,
+  resendVerificationAction,
   resetPasswordAction,
   signUpAction,
   type AuthActionState,
@@ -42,8 +45,14 @@ function StatusBanner({
     state.status === "error"
       ? state.message
       : initialError === "verification_failed"
-        ? "The verification or password recovery link has expired or is invalid. Please request a new one."
-        : null;
+        ? "The verification or password recovery link has expired or is invalid. Please request a new one below."
+        : initialError === "otp_expired"
+          ? "The verification link has expired. Please sign in or request a new confirmation email."
+          : initialError === "missing_verification_token"
+            ? "Missing verification token in confirmation link."
+            : initialError
+              ? decodeURIComponent(initialError)
+              : null;
 
   if (errorMessage) {
     return (
@@ -80,18 +89,54 @@ export function LoginForm({
   initialError?: string | null;
 }) {
   const [state, setState] = React.useState<AuthActionState>(INITIAL_STATE);
+  const [resendState, setResendState] = React.useState<AuthActionState>(INITIAL_STATE);
+  const [emailValue, setEmailValue] = React.useState("");
   const [isPending, startTransition] = React.useTransition();
+  const [isResending, startResendTransition] = React.useTransition();
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     startTransition(async () => {
-      const result = await loginAction(state, formData);
-      if (result) {
-        setState(result);
+      try {
+        const result = await loginAction(state, formData);
+        if (result) {
+          setState(result);
+        }
+      } catch (err) {
+        if (!isRedirectError(err)) {
+          setState({
+            status: "error",
+            message:
+              err instanceof Error
+                ? err.message
+                : "Unable to sign in right now. Please try again.",
+          });
+        }
       }
     });
   }
+
+  function handleResend() {
+    if (!emailValue) {
+      setResendState({
+        status: "error",
+        message: "Please enter your email address in the field above to resend verification.",
+      });
+      return;
+    }
+    const formData = new FormData();
+    formData.append("email", emailValue);
+    startResendTransition(async () => {
+      const result = await resendVerificationAction(resendState, formData);
+      setResendState(result);
+    });
+  }
+
+  const showResendOption =
+    state.message?.toLowerCase().includes("not verified") ||
+    initialError?.toLowerCase().includes("verif") ||
+    initialError?.toLowerCase().includes("expired");
 
   return (
     <Card className="mx-auto max-w-md">
@@ -100,7 +145,11 @@ export function LoginForm({
           <div className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-primary">
             <LogIn className="h-5 w-5" aria-hidden />
           </div>
-          {!configured && (
+          {configured ? (
+            <Badge variant="accent" className="gap-1 border-teal/40 bg-teal/10 text-teal">
+              <CheckCircle2 className="h-3 w-3" /> Supabase Connected
+            </Badge>
+          ) : (
             <Badge variant="muted">Supabase env not connected</Badge>
           )}
         </div>
@@ -113,6 +162,23 @@ export function LoginForm({
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <StatusBanner state={state} initialError={initialError} />
+          {resendState.status !== "idle" && <StatusBanner state={resendState} />}
+
+          {showResendOption && (
+            <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-background/50 p-3 text-xs">
+              <span className="text-muted-foreground">Need a fresh verification link?</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                disabled={isResending}
+                onClick={handleResend}
+              >
+                {isResending ? "Sending..." : "Resend Link"}
+              </Button>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label
@@ -127,6 +193,8 @@ export function LoginForm({
               type="email"
               autoComplete="email"
               placeholder="you@university.edu"
+              value={emailValue}
+              onChange={(e) => setEmailValue(e.target.value)}
               required
               disabled={isPending}
             />
@@ -162,6 +230,68 @@ export function LoginForm({
             {isPending ? "Signing in..." : "Sign in"}
           </Button>
 
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Or quick 1-click preview
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => {
+                startTransition(async () => {
+                  try {
+                    await demoLoginAction("admin");
+                  } catch (err) {
+                    if (!isRedirectError(err)) {
+                      setState({
+                        status: "error",
+                        message: "Unable to start admin session.",
+                      });
+                    }
+                  }
+                });
+              }}
+              className="w-full gap-1.5 text-xs font-medium"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+              Admin Demo
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => {
+                startTransition(async () => {
+                  try {
+                    await demoLoginAction("student");
+                  } catch (err) {
+                    if (!isRedirectError(err)) {
+                      setState({
+                        status: "error",
+                        message: "Unable to start student session.",
+                      });
+                    }
+                  }
+                });
+              }}
+              className="w-full gap-1.5 text-xs font-medium"
+            >
+              <LogIn className="h-3.5 w-3.5 text-teal" />
+              Student Demo
+            </Button>
+          </div>
+
           <div className="pt-2 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link
@@ -185,9 +315,21 @@ export function SignupForm({ configured }: { configured: boolean }) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     startTransition(async () => {
-      const result = await signUpAction(state, formData);
-      if (result) {
-        setState(result);
+      try {
+        const result = await signUpAction(state, formData);
+        if (result) {
+          setState(result);
+        }
+      } catch (err) {
+        if (!isRedirectError(err)) {
+          setState({
+            status: "error",
+            message:
+              err instanceof Error
+                ? err.message
+                : "Unable to sign up right now. Please try again.",
+          });
+        }
       }
     });
   }
@@ -199,7 +341,11 @@ export function SignupForm({ configured }: { configured: boolean }) {
           <div className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-primary">
             <UserPlus className="h-5 w-5" aria-hidden />
           </div>
-          {!configured && (
+          {configured ? (
+            <Badge variant="accent" className="gap-1 border-teal/40 bg-teal/10 text-teal">
+              <CheckCircle2 className="h-3 w-3" /> Supabase Connected
+            </Badge>
+          ) : (
             <Badge variant="muted">Supabase env not connected</Badge>
           )}
         </div>
@@ -295,9 +441,21 @@ export function ForgotPasswordForm({ configured }: { configured: boolean }) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     startTransition(async () => {
-      const result = await forgotPasswordAction(state, formData);
-      if (result) {
-        setState(result);
+      try {
+        const result = await forgotPasswordAction(state, formData);
+        if (result) {
+          setState(result);
+        }
+      } catch (err) {
+        if (!isRedirectError(err)) {
+          setState({
+            status: "error",
+            message:
+              err instanceof Error
+                ? err.message
+                : "Unable to send password reset email right now. Please try again.",
+          });
+        }
       }
     });
   }
@@ -309,7 +467,11 @@ export function ForgotPasswordForm({ configured }: { configured: boolean }) {
           <div className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-primary">
             <KeyRound className="h-5 w-5" aria-hidden />
           </div>
-          {!configured && (
+          {configured ? (
+            <Badge variant="accent" className="gap-1 border-teal/40 bg-teal/10 text-teal">
+              <CheckCircle2 className="h-3 w-3" /> Supabase Connected
+            </Badge>
+          ) : (
             <Badge variant="muted">Supabase env not connected</Badge>
           )}
         </div>
@@ -368,9 +530,21 @@ export function ResetPasswordForm({ configured }: { configured: boolean }) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     startTransition(async () => {
-      const result = await resetPasswordAction(state, formData);
-      if (result) {
-        setState(result);
+      try {
+        const result = await resetPasswordAction(state, formData);
+        if (result) {
+          setState(result);
+        }
+      } catch (err) {
+        if (!isRedirectError(err)) {
+          setState({
+            status: "error",
+            message:
+              err instanceof Error
+                ? err.message
+                : "Unable to reset password right now. Please try again.",
+          });
+        }
       }
     });
   }
@@ -382,7 +556,11 @@ export function ResetPasswordForm({ configured }: { configured: boolean }) {
           <div className="flex h-11 w-11 items-center justify-center rounded-md bg-secondary text-primary">
             <ShieldCheck className="h-5 w-5" aria-hidden />
           </div>
-          {!configured && (
+          {configured ? (
+            <Badge variant="accent" className="gap-1 border-teal/40 bg-teal/10 text-teal">
+              <CheckCircle2 className="h-3 w-3" /> Supabase Connected
+            </Badge>
+          ) : (
             <Badge variant="muted">Supabase env not connected</Badge>
           )}
         </div>

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { GraduationCap, Menu, X } from "lucide-react";
+import { GraduationCap, Menu, ShieldCheck, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/features/auth/actions";
@@ -17,8 +17,12 @@ const NAV_LINKS = [
 
 export function MobileNav({
   isAuthenticated = false,
+  isAdmin = false,
+  needsOnboarding = false,
 }: {
   isAuthenticated?: boolean;
+  isAdmin?: boolean;
+  needsOnboarding?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -70,6 +74,28 @@ export function MobileNav({
                 {link.label}
               </Link>
             ))}
+
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-md px-2 py-3 text-base font-medium text-primary transition-colors hover:bg-muted/60"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Admin Area
+              </Link>
+            )}
+
+            {needsOnboarding && (
+              <Link
+                href="/onboarding"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-md px-2 py-3 text-base font-medium text-accent-foreground transition-colors hover:bg-muted/60"
+              >
+                <GraduationCap className="h-4 w-4" />
+                Complete Onboarding
+              </Link>
+            )}
           </nav>
 
           <div className="mt-auto flex flex-col gap-3 border-t border-border px-4 py-6">

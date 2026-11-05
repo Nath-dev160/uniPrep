@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/layout/mobile-nav";
@@ -16,6 +16,8 @@ const NAV_LINKS = [
 export async function SiteHeader() {
   const { user, profile } = await getCurrentSessionUser();
   const isAuthenticated = Boolean(user);
+  const isAdmin = profile?.role === "admin";
+  const needsOnboarding = isAuthenticated && !isAdmin && !profile?.onboarding_completed;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/90 backdrop-blur">
@@ -38,11 +40,31 @@ export async function SiteHeader() {
               {link.label}
             </Link>
           ))}
+
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
           {isAuthenticated ? (
             <>
+              {needsOnboarding && (
+                <Button asChild variant="outline" size="sm" className="border-accent text-accent-foreground">
+                  <Link href="/onboarding">Complete Setup</Link>
+                </Button>
+              )}
+              {isAdmin && (
+                <Button asChild variant="ghost" size="sm" className="text-primary font-medium">
+                  <Link href="/admin">Admin Area</Link>
+                </Button>
+              )}
               <Button asChild variant="ghost" size="sm">
                 <Link href="/profile">
                   {profile?.display_name || "Profile"}
@@ -66,7 +88,11 @@ export async function SiteHeader() {
           )}
         </div>
 
-        <MobileNav isAuthenticated={isAuthenticated} />
+        <MobileNav
+          isAuthenticated={isAuthenticated}
+          isAdmin={isAdmin}
+          needsOnboarding={needsOnboarding}
+        />
       </div>
     </header>
   );

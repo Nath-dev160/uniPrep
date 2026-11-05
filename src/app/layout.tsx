@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 
 import "./globals.css";
+import { AuthHashListener } from "@/features/auth/components/auth-hash-listener";
 
 const display = Fraunces({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className="min-h-screen bg-background font-sans text-foreground">
+        <AuthHashListener />
         {children}
       </body>
     </html>

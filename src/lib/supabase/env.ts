@@ -49,12 +49,20 @@ function normalizeSupabaseUrl(value: string | undefined): string | null {
   const normalized = normalizeEnvValue(value);
   if (!normalized) return null;
 
+  let urlCandidate = normalized;
+  // If user provided only their project ref (e.g. "nazatisesdikrdetxvuu")
+  if (/^[a-z0-9_-]{15,40}$/i.test(urlCandidate) && !urlCandidate.includes(".")) {
+    urlCandidate = `https://${urlCandidate}.supabase.co`;
+  } else if (!/^https?:\/\//i.test(urlCandidate)) {
+    urlCandidate = `https://${urlCandidate}`;
+  }
+
   try {
-    const parsed = new URL(normalized);
+    const parsed = new URL(urlCandidate);
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
       return null;
     }
-    return normalized;
+    return parsed.origin;
   } catch {
     return null;
   }
